@@ -10,7 +10,7 @@ V1 : Proof of Tech
 
 V2 : Proof of gameplay 
 
-    - Paint by dragging
+    x Paint by dragging
     - Break code up into sections instead of all in main 
         - App 
         - Game 
