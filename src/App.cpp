@@ -5,13 +5,18 @@
 #include "resource_dir.h"
 
 ///------------------------------------------------------------------
+App* g_theApp = nullptr;
+
+///------------------------------------------------------------------
 App::App()
 {
+	g_theApp = this;
+	
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
-	InitWindow(1280, 1024, "Colors");
+	InitWindow(m_screenSize.x, m_screenSize.y, "Colors");
 
 	HideCursor();
 

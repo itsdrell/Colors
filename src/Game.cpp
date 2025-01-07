@@ -1,6 +1,8 @@
 #include "Game.h"
 #include "Attract.h"
 #include "Playing.h"
+#include "App.h"
+
 
 #include "raylib.h"
 #include <string>
@@ -20,9 +22,14 @@ Game::Game()
 	m_gameCamera.rotation = 0.0f;
 	m_gameCamera.zoom = 2.0f;
 
-	m_UICamera.target = { 0.f, 0.f };
 	m_UICamera.rotation = 0.0f;
-	m_UICamera.zoom = 2.0f;
+	m_UICamera.zoom = 1.0f;
+	
+	Vector2 center = { g_theApp->m_screenSize.x * .5f, g_theApp->m_screenSize.y * 0.5f };
+	m_UICamera.offset = { center.x, center.y };
+	m_UICamera.target = { center.x, center.y };
+
+	m_UIBounds = AABB2(0, 0, g_theApp->m_screenSize.x, g_theApp->m_screenSize.y);
 
 	m_gameScenes[ATTRACT] = new Attract();
 	m_gameScenes[PLAYING] = new Playing();

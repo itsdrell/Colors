@@ -1,16 +1,19 @@
 #include "Playing.h"
 #include "Game.h"
+#include "AABB2.h"
 #include "raylib.h"
-#include <string>
-#include <map>
 
-///------------------------------------------------------------------
+#include <map>
+#include <string>
+#include "GameUtils.h"
+
+//-----------------------------------------------------------------------------------------------
 int selected_color = 1;
 
 constexpr int CELL_SIZE = 32;
 constexpr float CELL_SIZE_FLOAT = 32.0f;
 
-///------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 Playing::Playing()
 {
 	// Game Camera
@@ -59,7 +62,7 @@ Playing::Playing()
 	}
 }
 
-///------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 Playing::~Playing()
 {
 	for(Cell* currentCell : m_cells)
@@ -68,19 +71,19 @@ Playing::~Playing()
 	}
 }
 
-///------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 void Playing::OnEnter()
 {
 
 }
 
-///------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 void Playing::OnExit()
 {
 
 }
 
-///------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 void Playing::Update(float ds)
 {
 	Camera2D& gameCamera = g_theGame->m_gameCamera;
@@ -115,54 +118,72 @@ void Playing::Update(float ds)
 	if (IsKeyReleased(KEY_FOUR)) { selected_color = 4; }
 }
 
-///------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 void Playing::Render() const
 {
 	// Setup the back buffer for drawing (clear color and depth buffers)
 	ClearBackground(BLACK);
 
-	// THIS IS DRAWING ON THE m_camera
-	BeginMode2D(g_theGame->m_gameCamera);
-
-	// draw our texture to the screen
-	DrawTextureEx(m_testTexture, { 0, 0 }, 0.f, CELL_SIZE, WHITE);
-
-	// grid
-	for (int i = 0; i < m_testImage.width; i++)
-	{
-		for (int j = 0; j < m_testImage.height; j++)
-		{
-			int index = (j * m_testImage.height + i);
-			Cell* currentCell = m_cells[index];
-
-			if (currentCell->m_picked == false)
-			{
-				DrawRectangle(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, WHITE);
-			}
-
-			if (index == m_hoveredIndex)
-			{
-				DrawRectangleLines(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, YELLOW);
-			}
-
-			if (currentCell->m_picked == false)
-			{
-				float posX = (i * CELL_SIZE) + 16.f;
-				float posY = ((j + 1) * CELL_SIZE) - 16.f;
-
-				char buff[100];
-				snprintf(buff, sizeof(buff), "%i", currentCell->m_colorLookup);
-				DrawText(buff, posX, posY, 1, BLUE);
-			}
-
-			DrawRectangleLines(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, BLACK);
-		}
-	}
-
-
-	EndMode2D();
+	//DrawPicture();
+	DrawUI();
 
 	char buff[100];
 	snprintf(buff, sizeof(buff), "color: %i", selected_color);
 	DrawText(buff, 640, 10, 20, RED);
+}
+
+//-----------------------------------------------------------------------------------------------
+void Playing::DrawPicture() const
+{
+    // THIS IS DRAWING ON THE m_camera
+    BeginMode2D(g_theGame->m_gameCamera);
+
+    // draw our texture to the screen
+    DrawTextureEx(m_testTexture, { 0, 0 }, 0.f, CELL_SIZE, WHITE);
+
+    // grid
+    for (int i = 0; i < m_testImage.width; i++)
+    {
+        for (int j = 0; j < m_testImage.height; j++)
+        {
+            int index = (j * m_testImage.height + i);
+            Cell* currentCell = m_cells[index];
+
+            if (currentCell->m_picked == false)
+            {
+                DrawRectangle(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, WHITE);
+            }
+
+            if (index == m_hoveredIndex)
+            {
+                DrawRectangleLines(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, YELLOW);
+            }
+
+            if (currentCell->m_picked == false)
+            {
+                float posX = (i * CELL_SIZE) + 16.f;
+                float posY = ((j + 1) * CELL_SIZE) - 16.f;
+
+                char buff[100];
+                snprintf(buff, sizeof(buff), "%i", currentCell->m_colorLookup);
+                DrawText(buff, posX, posY, 1, BLUE);
+            }
+
+            DrawRectangleLines(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, BLACK);
+        }
+    }
+
+    EndMode2D();
+}
+
+//-----------------------------------------------------------------------------------------------
+void Playing::DrawUI() const
+{
+	BeginMode2D(g_theGame->m_UICamera);
+
+	DrawAABB2(g_theGame->m_UIBounds, WHITE);
+	DrawCircle(0, 0,6, RED);
+
+
+	EndMode2D();
 }

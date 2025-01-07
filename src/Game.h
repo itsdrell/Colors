@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include "AABB2.h"
 
 ///------------------------------------------------------------------
 class Scene;
@@ -25,6 +26,7 @@ public:
 public:
 	Camera2D m_gameCamera = { 0 };
 	Camera2D m_UICamera = { 0 };
+	AABB2 m_UIBounds;
 	
 	Vector2 m_mousePos;
 

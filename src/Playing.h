@@ -32,6 +32,10 @@ public:
 	virtual void Update(float ds);
 	virtual void Render() const;
 
+private:
+	void DrawPicture() const;
+	void DrawUI() const;
+
 public:
 	std::vector<Color> m_colors;
 	std::vector<Cell*> m_cells;
