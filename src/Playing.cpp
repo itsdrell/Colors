@@ -11,8 +11,6 @@
 #include "raymath.h"
 
 //-----------------------------------------------------------------------------------------------
-int selected_color = 1;
-
 constexpr int CELL_SIZE = 32;
 constexpr float CELL_SIZE_FLOAT = 32.0f;
 
@@ -26,7 +24,9 @@ Playing::Playing()
 	gameCamera.zoom = 2.0f;
 
 	// Create the level image
-	m_testImage = LoadImage("tree_8x8.png");
+	//m_testImage = LoadImage("tree_8x8.png");
+	//m_testImage = LoadImage("cat_cute.png");
+    m_testImage = LoadImage("unique_5_5.png");
 	m_testTexture = LoadTextureFromImage(m_testImage);
 
 	int imageSize = m_testImage.height * m_testImage.width;
@@ -67,7 +67,7 @@ Playing::Playing()
 
 
 	AABB2 bounds = GetAABB2FromAABB2({.65, .1}, {.95, .9}, g_theGame->m_UIBounds);
-	ColorPickerWidget* colorPicker = new ColorPickerWidget(&gameCamera, bounds);
+	ColorPickerWidget* colorPicker = new ColorPickerWidget(&gameCamera, bounds, this);
 	m_widgets.push_back(colorPicker);
 }
 
@@ -109,7 +109,7 @@ void Playing::Update(float ds)
 	{
 		Cell* selectedCell = m_cells[m_hoveredIndex];
 
-		if (selectedCell->m_colorLookup == selected_color)
+		if (selectedCell->m_colorLookup == m_selected_color)
 		{
 			selectedCell->m_picked = true;
 		}
@@ -136,11 +136,11 @@ void Playing::UpdateMovement(float ds)
         gameCamera.zoom = .1f;
     }
 
-    if (IsKeyReleased(KEY_ZERO)) { selected_color = 0; }
-    if (IsKeyReleased(KEY_ONE)) { selected_color = 1; }
-    if (IsKeyReleased(KEY_TWO)) { selected_color = 2; }
-    if (IsKeyReleased(KEY_THREE)) { selected_color = 3; }
-    if (IsKeyReleased(KEY_FOUR)) { selected_color = 4; }
+    if (IsKeyReleased(KEY_ZERO)) { m_selected_color = 0; }
+    if (IsKeyReleased(KEY_ONE)) { m_selected_color = 1; }
+    if (IsKeyReleased(KEY_TWO)) { m_selected_color = 2; }
+    if (IsKeyReleased(KEY_THREE)) { m_selected_color = 3; }
+    if (IsKeyReleased(KEY_FOUR)) { m_selected_color = 4; }
 
 	Vector2 dir = { 0,0 };
 	if(IsKeyDown(KEY_W))
@@ -186,7 +186,7 @@ void Playing::Render() const
 	DrawUI();
 
 	char buff[100];
-	snprintf(buff, sizeof(buff), "color: %i", selected_color);
+	snprintf(buff, sizeof(buff), "color: %i", m_selected_color);
 	DrawText(buff, 640, 10, 20, RED);
 
 
@@ -218,6 +218,9 @@ void Playing::DrawPicture() const
         for (int j = 0; j < m_testImage.height; j++)
         {
             int index = (j * m_testImage.height + i);
+			if (index >= m_cells.size())
+				continue;
+
             Cell* currentCell = m_cells[index];
 
             if (currentCell->m_picked == false)

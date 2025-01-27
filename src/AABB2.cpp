@@ -38,15 +38,15 @@ Vector2 AABB2::GetDimensions() const
 }
 
 //-----------------------------------------------------------------------------------------------
-//Vector2 AABB2::GetPositionWithinBox(const Vector2& percentWithin) const
-//{
-//    Vector2 result;
-//
-//    float x = Interpolate(mins.x, maxs.x, percentWithin.x);
-//    float y = Interpolate(mins.y, maxs.y, percentWithin.y);
-//
-//    return Vector2(x, y);
-//}
+Vector2 AABB2::GetPositionWithinBox(const Vector2& percentWithin) const
+{
+    Vector2 result;
+
+    float x = Lerp(mins.x, maxs.x, percentWithin.x);
+    float y = Lerp(mins.y, maxs.y, percentWithin.y);
+
+    return { x, y };
+}
 
 //-----------------------------------------------------------------------------------------------
 bool AABB2::IsPointInBox(const Vector2& thePoint) const

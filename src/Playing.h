@@ -51,6 +51,8 @@ public:
 	int m_mouseTilePosX = 0;
 	int m_mouseTilePosY = 0;
 
+	int m_selected_color = 1;
+
 	Image m_testImage;
 	Texture m_testTexture;
 
