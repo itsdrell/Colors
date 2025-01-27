@@ -5,6 +5,9 @@
 #include "raylib.h"
 
 ///------------------------------------------------------------------
+class Widget;
+
+///------------------------------------------------------------------
 class Cell
 {
 public:
@@ -30,11 +33,15 @@ public:
 
 public:
 	virtual void Update(float ds);
+	void UpdateMovement(float ds);
+	bool IsValidIndex(int index);
+
 	virtual void Render() const;
 
 private:
 	void DrawPicture() const;
 	void DrawUI() const;
+	void DrawColorSelector() const;
 
 public:
 	std::vector<Color> m_colors;
@@ -46,4 +53,8 @@ public:
 
 	Image m_testImage;
 	Texture m_testTexture;
+
+	Vector2 m_position = { 0,0 };
+
+	std::vector<Widget*> m_widgets;
 };
