@@ -17,10 +17,13 @@ V2 : Proof of gameplay
             - Title 
             - Playing 
     - UI 
-        - Color selector 
-        - Color amount 
-        - The ui is in order from most color to least color 
-        - Mouse wheel scroll
+        x Color selector 
+        x Color amount 
+        - show more than 15 colors 
+        - show selected color
+    - Feel
+        - When zoomed out movement increases
+    
     - Game detects when painting is done 
     - Save / Load progress 
 

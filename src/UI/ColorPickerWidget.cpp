@@ -108,6 +108,7 @@ void ColorPickerWidget::Render() const
         return;
     }
 
+    DrawAABB2Filled(m_bounds, BLACK);
     DrawAABB2(m_bounds, WHITE);
     
     

@@ -27,7 +27,8 @@ Playing::Playing()
 	// Create the level image
 	//m_testImage = LoadImage("tree_8x8.png");
 	//m_testImage = LoadImage("cat_cute.png");
-    m_testImage = LoadImage("unique_5_5.png");
+    //m_testImage = LoadImage("unique_5_5.png");
+	m_testImage = LoadImage("100_100.png");
 	m_testTexture = LoadTextureFromImage(m_testImage);
 
 	int imageSize = m_testImage.height * m_testImage.width;
@@ -76,8 +77,8 @@ Playing::Playing()
 	}
 
 	AABB2 bounds = GetAABB2FromAABB2({.65, .1}, {.95, .9}, g_theGame->m_UIBounds);
-	ColorPickerWidget* colorPicker = new ColorPickerWidget(&gameCamera, bounds, this);
-	m_widgets.push_back(colorPicker);
+	m_colorPicker = new ColorPickerWidget(&gameCamera, bounds, this);
+	m_widgets.push_back(m_colorPicker);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -141,9 +142,8 @@ void Playing::UpdateMovement(float ds)
 	Camera2D& gameCamera = g_theGame->m_gameCamera;
 	Camera2D& uiCamera = g_theGame->m_UICamera;
 	
-	gameCamera.zoom += ((float)GetMouseWheelMove() * 0.5f);
-
-    if (gameCamera.zoom == 0.0f)
+	gameCamera.zoom += ((float)GetMouseWheelMove() * .1f);
+    if (gameCamera.zoom < 0.1f)
     {
         gameCamera.zoom = .1f;
     }
@@ -153,6 +153,11 @@ void Playing::UpdateMovement(float ds)
     if (IsKeyReleased(KEY_TWO)) { m_selected_color = 2; }
     if (IsKeyReleased(KEY_THREE)) { m_selected_color = 3; }
     if (IsKeyReleased(KEY_FOUR)) { m_selected_color = 4; }
+
+	if(IsKeyReleased(KEY_O))
+	{
+		m_colorPicker->m_isOpen = !m_colorPicker->m_isOpen;
+	}
 
 	Vector2 dir = { 0,0 };
 	if(IsKeyDown(KEY_W))
@@ -181,8 +186,26 @@ void Playing::UpdateMovement(float ds)
 	m_position = Vector2Add(movement, m_position);
 
 	gameCamera.target = m_position;
+
+	CheatInputs();
 }
 
+//-----------------------------------------------------------------------------------------------
+void Playing::CheatInputs()
+{
+	if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_LEFT_SHIFT))
+	{
+		if(IsKeyPressed(KEY_ONE))
+		{
+			for(Cell* currentCell : m_cells)
+			{
+				currentCell->m_picked = true;
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------------------------
 bool Playing::IsValidIndex(int index)
 {
 	return (m_hoveredIndex > 0) && m_hoveredIndex < m_cells.size();
@@ -211,8 +234,10 @@ void Playing::Render() const
     float offsetX = (mousePos.x / (gameCamera.zoom * CELL_SIZE_FLOAT)) + gameCamera.target.x;
     float offsetY = (mousePos.y / (gameCamera.zoom * CELL_SIZE_FLOAT)) + gameCamera.target.y;
     
-	snprintf(buff, sizeof(buff), "zoom: %f", gameCamera.zoom);
-	DrawText(buff, 640, 10, 30, RED);
+
+	//snprintf(buff, sizeof(buff), "fps: %d", GetFPS());
+	snprintf(buff, sizeof(buff), "z: %f", gameCamera.zoom);
+	DrawText(buff, 1000, 10, 30, RED);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -224,25 +249,37 @@ void Playing::DrawPicture() const
     // draw our texture to the screen
     DrawTextureEx(m_testTexture, { 0, 0 }, 0.f, CELL_SIZE, WHITE);
 
+	Vector2 pos = g_theGame->m_gameCamera.target;
+    int posIndexX = (int)(pos.x / (CELL_SIZE_FLOAT));
+    int posIndexY = (int)(pos.y / (CELL_SIZE_FLOAT));
+
+	int hoverX = 0;
+	int hoverY = 0;
+
+	// why am I drawing in this order instead of width then hight? Like the first loop should be y...
     // grid
     for (int i = 0; i < m_testImage.width; i++)
     {
         for (int j = 0; j < m_testImage.height; j++)
         {
             int index = (j * m_testImage.height + i);
-			if (index >= m_cells.size())
+			if (index >= m_cells.size()) // BUG
 				continue;
+
+			// HACK
+			// Just try and only draw tiles that are X cells away?
+            float distanceSquared = Vector2DistanceSqr({ (float)posIndexX, (float)posIndexY }, { (float)i, (float)j });
+            if (distanceSquared > 1000)
+            {
+                //continue;
+            }
 
             Cell* currentCell = m_cells[index];
 
             if (currentCell->m_picked == false)
             {
-                DrawRectangle(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, WHITE);
-            }
-
-            if (index == m_hoveredIndex)
-            {
-                DrawRectangleLines(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, YELLOW);
+				Color drawColor = (currentCell->m_colorLookup == m_selected_color) ? WHITE : Color{235, 235, 235, 255};
+				DrawRectangle(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, drawColor);
             }
 
             if (currentCell->m_picked == false)
@@ -257,11 +294,20 @@ void Playing::DrawPicture() const
                     snprintf(buff, sizeof(buff), "%i", currentCell->m_colorLookup);
                     DrawText(buff, posX, posY, 1, BLUE);
 				}
+				
+				DrawRectangleLines(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, BLACK);
             }
 
-            DrawRectangleLines(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, BLACK);
+			// TODO : this needs to be draw outside of this loop silly
+            if (index == m_hoveredIndex)
+            {
+				hoverX = i;
+				hoverY = j;
+            }
         }
     }
+
+    DrawRectangleLines(hoverX * CELL_SIZE, hoverY * CELL_SIZE, CELL_SIZE, CELL_SIZE, MAGENTA);
 
     EndMode2D();
 }

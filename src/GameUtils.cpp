@@ -21,3 +21,18 @@ void DrawAABB2Filled(const AABB2& bounds, const Color& theColor)
         theColor);
 }
 
+Color GetRandomColor()
+{
+    Color colors[25] =
+    {
+        LIGHTGRAY,GRAY,DARKGRAY,YELLOW,
+        GOLD,ORANGE,PINK,RED,MAROON,
+        GREEN,LIME,DARKGREEN,SKYBLUE,
+        BLUE,DARKBLUE,PURPLE,VIOLET,
+        DARKPURPLE,BEIGE,BROWN,DARKBROWN,
+        WHITE,BLACK,MAGENTA,RAYWHITE
+    };
+
+    int index = GetRandomValue(0, 24);
+    return colors[index];
+}         

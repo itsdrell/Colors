@@ -7,6 +7,7 @@
 
 ///------------------------------------------------------------------
 class Widget;
+class ColorPickerWidget;
 
 typedef int ColorLookup;
 
@@ -37,6 +38,7 @@ public:
 public:
 	virtual void Update(float ds);
 	void UpdateMovement(float ds);
+	void CheatInputs();
 	bool IsValidIndex(int index);
 
 	virtual void Render() const;
@@ -64,4 +66,5 @@ public:
 	Vector2 m_position = { 0,0 };
 
 	std::vector<Widget*> m_widgets;
+	ColorPickerWidget* m_colorPicker = nullptr;
 };
