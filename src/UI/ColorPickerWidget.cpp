@@ -38,7 +38,12 @@ ColorPickerWidget::ColorPickerWidget(Camera2D* uiCamera, AABB2& bounds, Playing*
             if (index > amountOfColors)
                 break;
 
-            newColor->Init(m_playing->m_colors[index], index, 69);
+            // live updates
+            ColorLookup color = ColorToInt(m_playing->m_colors[index]);
+            int* intPoint = &playing->m_ColorProgress[color];
+
+            //newColor->Init(m_playing->m_colors[index], index, 69);
+            newColor->Init(m_playing->m_colors[index], index, intPoint);
             m_gridColors.push_back(newColor);
 
             minX += .3;
@@ -57,7 +62,7 @@ void ColorPickerWidget::Update(float ds)
     // Input
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
     {
-        if(m_isOpen == false)
+        if (m_isOpen == false)
         {
             if (m_ColorSelectToggleButton->IsSelected(mousePos))
             {
@@ -67,35 +72,31 @@ void ColorPickerWidget::Update(float ds)
         }
         else
         {
-            if(m_closeBounds.IsPointInBox(mousePos))
+            if (m_closeBounds.IsPointInBox(mousePos))
             {
                 m_isOpen = false;
                 return;
             }
 
-            for(const GridColorButton* currentColor : m_gridColors)
+            for (const GridColorButton* currentColor : m_gridColors)
             {
-                if(currentColor->IsSelected(mousePos))
+                if (currentColor->IsSelected(mousePos))
                 {
                     m_playing->m_selected_color = currentColor->m_index;
                 }
             }
         }
-        
-        
-    }
-    
-    
-    if(m_isOpen == false)
-    {
-        
-    }
-    else
-    {
-        
-    }
 
+        if (m_isOpen == false)
+        {
 
+        }
+        else
+        {
+
+        }
+
+    }
 }
 
 ///------------------------------------------------------------------

@@ -8,11 +8,11 @@ public:
         : Button(bounds) {};
 
 public:
-    void Init(Color& color, int index, int amountLeft)
+    void Init(Color& color, int index, int* amountLeft)
     {
         m_color = color;
         m_index = index;
-        m_amountLeft = amountLeft;
+        m_amountLeftPointer = amountLeft;
     }
 
 public:
@@ -21,5 +21,6 @@ public:
 public:
     Color   m_color = PINK;
     int     m_index = -1;
-    int     m_amountLeft = -1;
+
+    int*    m_amountLeftPointer = nullptr;
 };

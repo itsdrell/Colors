@@ -3,9 +3,12 @@
 
 #include <vector>
 #include "raylib.h"
+#include <map>
 
 ///------------------------------------------------------------------
 class Widget;
+
+typedef int ColorLookup;
 
 ///------------------------------------------------------------------
 class Cell
@@ -46,6 +49,8 @@ private:
 public:
 	std::vector<Color> m_colors;
 	std::vector<Cell*> m_cells;
+
+	std::map<ColorLookup, int> m_ColorProgress;
 
 	int m_hoveredIndex = 0;
 	int m_mouseTilePosX = 0;

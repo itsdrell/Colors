@@ -9,6 +9,7 @@
 #include <string>
 #include "GameUtils.h"
 #include "raymath.h"
+#include <utility>
 
 //-----------------------------------------------------------------------------------------------
 constexpr int CELL_SIZE = 32;
@@ -62,9 +63,17 @@ Playing::Playing()
 
 		Cell* newCell = new Cell(currentColor, foundIndex);
 		m_cells.push_back(newCell);
+
+		ColorLookup colorLookup = ColorToInt(currentColor);
+		if(m_ColorProgress.count(colorLookup) == 0)
+		{
+			m_ColorProgress.insert({ colorLookup, 1 });
+		}
+		else
+		{
+            m_ColorProgress[colorLookup]++;
+		}
 	}
-
-
 
 	AABB2 bounds = GetAABB2FromAABB2({.65, .1}, {.95, .9}, g_theGame->m_UIBounds);
 	ColorPickerWidget* colorPicker = new ColorPickerWidget(&gameCamera, bounds, this);
@@ -109,9 +118,12 @@ void Playing::Update(float ds)
 	{
 		Cell* selectedCell = m_cells[m_hoveredIndex];
 
-		if (selectedCell->m_colorLookup == m_selected_color)
+		if ((selectedCell->m_picked == false) && (selectedCell->m_colorLookup == m_selected_color))
 		{
 			selectedCell->m_picked = true;
+
+			ColorLookup colorLookup = ColorToInt(m_colors[m_selected_color]);
+			m_ColorProgress[colorLookup]--;
 		}
 	}
 
@@ -199,8 +211,8 @@ void Playing::Render() const
     float offsetX = (mousePos.x / (gameCamera.zoom * CELL_SIZE_FLOAT)) + gameCamera.target.x;
     float offsetY = (mousePos.y / (gameCamera.zoom * CELL_SIZE_FLOAT)) + gameCamera.target.y;
     
-	//snprintf(buff, sizeof(buff), "pos: %f , %f", mouseWorld.x, mouseWorld.y);
-	//DrawText(buff, 640, 10, 30, RED);
+	snprintf(buff, sizeof(buff), "zoom: %f", gameCamera.zoom);
+	DrawText(buff, 640, 10, 30, RED);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -238,9 +250,13 @@ void Playing::DrawPicture() const
                 float posX = (i * CELL_SIZE) + 16.f;
                 float posY = ((j + 1) * CELL_SIZE) - 16.f;
 
-                char buff[100];
-                snprintf(buff, sizeof(buff), "%i", currentCell->m_colorLookup);
-                DrawText(buff, posX, posY, 1, BLUE);
+				// dont draw text if its not going to be readable. Hack optimization
+				if (g_theGame->m_gameCamera.zoom >= 1.f)
+				{
+                    char buff[100];
+                    snprintf(buff, sizeof(buff), "%i", currentCell->m_colorLookup);
+                    DrawText(buff, posX, posY, 1, BLUE);
+				}
             }
 
             DrawRectangleLines(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, BLACK);
