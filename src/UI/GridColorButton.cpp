@@ -4,7 +4,9 @@
 
 void GridColorButton::Render() const
 {
-    if(*m_amountLeftPointer <= 0 || m_isVisible == false)
+    if( m_amountLeftPointer == nullptr ||
+        *m_amountLeftPointer <= 0 || 
+        m_isVisible == false)
     {
         return;
     }

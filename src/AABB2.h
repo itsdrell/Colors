@@ -30,6 +30,7 @@ public:
     AABB2();
     AABB2(float minX, float minY, float maxX, float maxY);
     AABB2(const Vector2& theMins, const Vector2& theMaxs);
+    AABB2(const Rectangle& rect);
 
 public:
     float		GetWidth() const;
@@ -47,6 +48,9 @@ public:
 public:
     void GrowToSquare();
     void ShrinkToSquare();
+
+public:
+    Rectangle ToRect() const;
 
 public:
     // does .5 * size to mins, .5 to size to maxs

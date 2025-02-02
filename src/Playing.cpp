@@ -25,11 +25,13 @@ Playing::Playing()
 	gameCamera.zoom = 2.0f;
 
 	// Create the level image
-	//m_testImage = LoadImage("tree_8x8.png");
+	m_testImage = LoadImage("tree_8x8.png");
 	//m_testImage = LoadImage("cat_cute.png");
     //m_testImage = LoadImage("unique_5_5.png");
-	m_testImage = LoadImage("100_100.png");
+	//m_testImage = LoadImage("100_100.png");
 	m_testTexture = LoadTextureFromImage(m_testImage);
+
+	m_carolinePointing = LoadTexture("caroline_point_clear.png");
 
 	int imageSize = m_testImage.height * m_testImage.width;
 
@@ -105,6 +107,12 @@ void Playing::OnExit()
 //-----------------------------------------------------------------------------------------------
 void Playing::Update(float ds)
 {
+	if(m_isFinished)
+	{
+		// add button to go back to menu and stuff
+		return;
+	}
+	
 	Camera2D& gameCamera = g_theGame->m_gameCamera;
 	Vector2 mousePos = GetMousePosition();
 
@@ -134,6 +142,8 @@ void Playing::Update(float ds)
     {
         currentWidget->Update(ds);
     }
+
+	CheckIfPaintingIsFinished();
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -191,6 +201,21 @@ void Playing::UpdateMovement(float ds)
 }
 
 //-----------------------------------------------------------------------------------------------
+void Playing::CheckIfPaintingIsFinished()
+{
+	for(int i = 0; i < m_colors.size(); i++)
+	{
+		ColorLookup colorLookup = ColorToInt(m_colors[i]);
+		if(m_ColorProgress[colorLookup] > 0)
+		{
+			return;
+		}
+	}
+
+	m_isFinished = true;
+}
+
+//-----------------------------------------------------------------------------------------------
 void Playing::CheatInputs()
 {
 	if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_LEFT_SHIFT))
@@ -208,7 +233,7 @@ void Playing::CheatInputs()
 //-----------------------------------------------------------------------------------------------
 bool Playing::IsValidIndex(int index)
 {
-	return (m_hoveredIndex > 0) && m_hoveredIndex < m_cells.size();
+	return (m_hoveredIndex >= 0) && m_hoveredIndex < m_cells.size();
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -217,27 +242,36 @@ void Playing::Render() const
 	// Setup the back buffer for drawing (clear color and depth buffers)
 	ClearBackground(BLACK);
 
-	DrawPicture();
-	DrawUI();
+	if(m_isFinished == false)
+	{
+        DrawPicture();
+        DrawUI();
+	}
+	else
+	{
+		DrawFinished();
+	}
 
-	char buff[100];
-	snprintf(buff, sizeof(buff), "color: %i", m_selected_color);
-	DrawText(buff, 640, 10, 20, RED);
+    // debug
+    char buff[100];
+    //snprintf(buff, sizeof(buff), "color: %i", m_selected_color);
+	// DrawText(buff, 640, 10, 20, RED);
 
-
-	// debug
     Camera2D& gameCamera = g_theGame->m_gameCamera;
     Vector2 mousePos = GetMousePosition();
 
-	Vector2 mouseWorld = GetScreenToWorld2D(mousePos, gameCamera);
+    Vector2 mouseWorld = GetScreenToWorld2D(mousePos, gameCamera);
 
     float offsetX = (mousePos.x / (gameCamera.zoom * CELL_SIZE_FLOAT)) + gameCamera.target.x;
     float offsetY = (mousePos.y / (gameCamera.zoom * CELL_SIZE_FLOAT)) + gameCamera.target.y;
-    
 
-	//snprintf(buff, sizeof(buff), "fps: %d", GetFPS());
-	snprintf(buff, sizeof(buff), "z: %f", gameCamera.zoom);
-	DrawText(buff, 1000, 10, 30, RED);
+
+    //snprintf(buff, sizeof(buff), "fps: %d", GetFPS());
+    //snprintf(buff, sizeof(buff), "z: %f", gameCamera.zoom);
+    snprintf(buff, sizeof(buff), "x: %f, y: %f", mousePos.x, mousePos.y);
+    //DrawText(buff, 500, 10, 30, RED);
+
+	DrawFPS(100, 10);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -320,25 +354,31 @@ void Playing::DrawUI() const
 {
 	BeginMode2D(g_theGame->m_UICamera);
 
-	//DrawColorSelector();
-
-	DrawAABB2(g_theGame->m_UIBounds, WHITE);
-	DrawCircle(0, 0,6, RED);
-
 	for(Widget* currentWidget : m_widgets)
 	{
 		currentWidget->Render();
 	}
-
-	
+		
 	EndMode2D();
 }
 
 //-----------------------------------------------------------------------------------------------
-void Playing::DrawColorSelector() const
+void Playing::DrawFinished() const
 {
-	AABB2 theBounds = g_theGame->m_UIBounds;
+	BeginMode2D(g_theGame->m_UICamera);
 
-	AABB2 colorSelectorBounds = GetAABB2FromAABB2({.1f, .9f}, {.9f, .8f}, theBounds);
-	DrawAABB2(colorSelectorBounds, WHITE);
+	AABB2 UIBounds = g_theGame->m_UIBounds;
+
+    AABB2 photoBounds = GetAABB2FromAABB2({ .3, .2 }, { .9, .8 }, UIBounds);
+	DrawAABB2(photoBounds, WHITE);
+	DrawTexturedBox(m_testTexture, photoBounds);
+
+    AABB2 CarolineBounds = GetAABB2FromAABB2({ .05, .2 }, { .25, .8 }, UIBounds);
+	DrawTexturedBox(m_carolinePointing, CarolineBounds);
+
+	Vector2 textPos = UIBounds.GetPositionWithinBox({.5, .1});
+	int textSize = MeasureText("Good Job! <3", 64);
+	DrawText("Good Job! <3", textPos.x - (textSize * .5), textPos.y, 64, PINK);
+
+	EndMode2D();
 }

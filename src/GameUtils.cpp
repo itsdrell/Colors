@@ -21,6 +21,14 @@ void DrawAABB2Filled(const AABB2& bounds, const Color& theColor)
         theColor);
 }
 
+void DrawTexturedBox(const Texture& texture, const AABB2& bounds)
+{
+    Rectangle imageBounds = { 0,0, texture.width, texture.height };
+    Rectangle boxToDrawIn = bounds.ToRect();
+
+    DrawTexturePro(texture, imageBounds, boxToDrawIn, { 0,0 }, 0, WHITE);
+}
+
 Color GetRandomColor()
 {
     Color colors[25] =

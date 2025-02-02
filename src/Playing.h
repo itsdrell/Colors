@@ -38,6 +38,8 @@ public:
 public:
 	virtual void Update(float ds);
 	void UpdateMovement(float ds);
+	
+	void CheckIfPaintingIsFinished();
 	void CheatInputs();
 	bool IsValidIndex(int index);
 
@@ -46,9 +48,11 @@ public:
 private:
 	void DrawPicture() const;
 	void DrawUI() const;
-	void DrawColorSelector() const;
+	void DrawFinished() const;
 
 public:
+	bool m_isFinished = false;
+
 	std::vector<Color> m_colors;
 	std::vector<Cell*> m_cells;
 
@@ -58,10 +62,12 @@ public:
 	int m_mouseTilePosX = 0;
 	int m_mouseTilePosY = 0;
 
-	int m_selected_color = 1;
+	int m_selected_color = 0;
 
 	Image m_testImage;
 	Texture m_testTexture;
+
+	Texture m_carolinePointing;
 
 	Vector2 m_position = { 0,0 };
 

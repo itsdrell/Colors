@@ -20,6 +20,16 @@ AABB2::AABB2(const Vector2& theMins, const Vector2& theMaxs)
 }
 
 //-----------------------------------------------------------------------------------------------
+AABB2::AABB2(const Rectangle& rect)
+{
+    mins.x = rect.x;
+    mins.y = rect.y;
+
+    maxs.x = rect.x + rect.width;
+    maxs.y = rect.y + rect.height;
+}
+
+//-----------------------------------------------------------------------------------------------
 float AABB2::GetWidth() const
 {
     return maxs.x - mins.x;
@@ -99,6 +109,23 @@ void AABB2::ShrinkToSquare()
         maxs.x -= amountToUse;
         mins.x += amountToUse;
     }
+}
+
+//-----------------------------------------------------------------------------------------------
+Rectangle AABB2::ToRect() const
+{
+    Rectangle rect;
+
+    rect.width = GetWidth();
+    rect.height = GetHeight();
+
+    rect.x = mins.x;
+
+    // even tho rect is top left for some reason it wants this to be the mins??????
+    // the math made me think it should be max >.<
+    rect.y = mins.y;
+
+    return rect;
 }
 
 //-----------------------------------------------------------------------------------------------

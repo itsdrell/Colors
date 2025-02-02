@@ -21,23 +21,24 @@ V2 : Proof of gameplay
         x Color amount 
         x show more than 15 colors 
         x show selected color
-    - Feel
-        - When zoomed out movement increases
-    
-    - Game detects when painting is done 
-    - Save / Load progress 
+
+    x Game detects when painting is done 
+
 
 V3 : Proof of Content 
-
     - Exe finds images from local path
     - Painting Picking Menu 
         - Bundles 
         - Pick which one to start 
     - UI can go in and out of modes 
-    - Make sure big photos work 
-
+        - Option menu 
+    - Save / Load progress 
+    
 V4 : Alpha
     - Polish 
+        - Make sure big photos work 
+    - Feel
+        - When zoomed out movement increases
 
 V4 : Beta 
     - Get feedback from User
