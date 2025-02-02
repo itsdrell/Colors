@@ -20,5 +20,6 @@ public:
     virtual bool IsSelected(Vector2& mousePos) const;
 
 public:
-    AABB2 m_bounds;
+    AABB2   m_bounds;
+    bool    m_isVisible = true;
 };

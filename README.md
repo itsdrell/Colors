@@ -19,8 +19,8 @@ V2 : Proof of gameplay
     - UI 
         x Color selector 
         x Color amount 
-        - show more than 15 colors 
-        - show selected color
+        x show more than 15 colors 
+        x show selected color
     - Feel
         - When zoomed out movement increases
     
@@ -46,3 +46,13 @@ Feature Requests:
     - F to find uncolored pixel 
     - timelapse at the end of the photo
     - Need to make sure its easy to mouse in and out of the game 
+
+
+
+TODO:
+    - Show more than 15 colors
+    - Show selected color 
+
+
+BUG:
+    - cant paint 0 index

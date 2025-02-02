@@ -4,7 +4,7 @@
 
 void GridColorButton::Render() const
 {
-    if(*m_amountLeftPointer <= 0)
+    if(*m_amountLeftPointer <= 0 || m_isVisible == false)
     {
         return;
     }
@@ -23,4 +23,10 @@ void GridColorButton::Render() const
     DrawText(progressText.c_str(), progressTextPos.x, progressTextPos.y, 12, BLACK);
     
     DrawAABB2(m_bounds, WHITE);
+
+    if(m_isSelectedColor)
+    {
+        AABB2 selectedBounds = GetBiggerAABB2FromAABB2(m_bounds, 8, 8);
+        DrawAABB2(selectedBounds, YELLOW);
+    }
 }

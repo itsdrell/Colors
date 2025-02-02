@@ -293,9 +293,12 @@ void Playing::DrawPicture() const
                     char buff[100];
                     snprintf(buff, sizeof(buff), "%i", currentCell->m_colorLookup);
                     DrawText(buff, posX, posY, 1, BLUE);
+
 				}
-				
-				DrawRectangleLines(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, BLACK);
+				else
+				{
+					DrawRectangleLines(i * CELL_SIZE, j * CELL_SIZE, CELL_SIZE, CELL_SIZE, BLACK);
+				}
             }
 
 			// TODO : this needs to be draw outside of this loop silly
