@@ -17,3 +17,16 @@ private:
 };
 
 ///------------------------------------------------------------------
+class TextButton : public Button
+{
+public:
+    TextButton(AABB2& bounds, const std::string& textToDraw)
+        : Button(bounds), m_displayText(textToDraw) {};
+
+public:
+    virtual void Render() const override;
+
+public:
+    std::string     m_displayText = "idk";
+    int             m_fontSize = 16;
+};

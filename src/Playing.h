@@ -8,6 +8,7 @@
 ///------------------------------------------------------------------
 class Widget;
 class ColorPickerWidget;
+class TextButton;
 
 typedef int ColorLookup;
 
@@ -73,4 +74,5 @@ public:
 
 	std::vector<Widget*> m_widgets;
 	ColorPickerWidget* m_colorPicker = nullptr;
+	TextButton* m_backToMenuButton = nullptr;
 };

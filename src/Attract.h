@@ -1,5 +1,7 @@
 #pragma once
 #include "Scene.h"
+///------------------------------------------------------------------
+class TextButton;
 
 ///------------------------------------------------------------------
 class Attract : public Scene
@@ -15,4 +17,7 @@ public:
 public:
 	virtual void Update(float ds);
 	virtual void Render() const;
+
+private:
+	TextButton* m_startButton = nullptr;
 };

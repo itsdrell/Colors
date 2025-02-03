@@ -30,7 +30,7 @@ public:
 	
 	Vector2 m_mousePos;
 
-	GameMode m_currentMode = PLAYING;
+	GameMode m_currentMode = ATTRACT;
 	Scene* m_gameScenes[GameMode::NUM_MODES];
 };
 

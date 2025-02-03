@@ -21,7 +21,7 @@ App::App()
 	HideCursor();
 
 	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
-	SearchAndSetResourceDir("resources");
+	SearchAndSetResourceDir("Resources");
 	
 	m_game = new Game();
 }

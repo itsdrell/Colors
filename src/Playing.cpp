@@ -10,6 +10,7 @@
 #include "GameUtils.h"
 #include "raymath.h"
 #include <utility>
+#include "UI/ButtonDefinitions.h"
 
 //-----------------------------------------------------------------------------------------------
 constexpr int CELL_SIZE = 32;
@@ -17,105 +18,131 @@ constexpr float CELL_SIZE_FLOAT = 32.0f;
 
 //-----------------------------------------------------------------------------------------------
 Playing::Playing()
-{
-	// Game Camera
-	Camera2D& gameCamera = g_theGame->m_gameCamera;
-	gameCamera.target = { 0.f, 0.f };
-	gameCamera.rotation = 0.0f;
-	gameCamera.zoom = 2.0f;
-
-	// Create the level image
-	m_testImage = LoadImage("tree_8x8.png");
-	//m_testImage = LoadImage("cat_cute.png");
-    //m_testImage = LoadImage("unique_5_5.png");
-	//m_testImage = LoadImage("100_100.png");
-	m_testTexture = LoadTextureFromImage(m_testImage);
-
-	m_carolinePointing = LoadTexture("caroline_point_clear.png");
-
-	int imageSize = m_testImage.height * m_testImage.width;
-
-	m_colors.reserve(imageSize);
-	m_cells.reserve(imageSize);
-
-	unsigned char* imageData = (unsigned char*)m_testImage.data;
-	for (int i = 0; i < (imageSize * 4); i += 4)
-	{
-		unsigned char currentR = imageData[i];
-		unsigned char currentG = imageData[i + 1];
-		unsigned char currentB = imageData[i + 2];
-		unsigned char currentA = imageData[i + 3];
-
-		Color currentColor = { currentR, currentG, currentB, currentA };
-
-		int foundIndex = -1;
-		for (int j = 0; j < m_colors.size(); j++)
-		{
-			if (ColorIsEqual(currentColor, m_colors[j]))
-			{
-				foundIndex = j;
-				continue;
-			}
-		}
-
-		if (foundIndex == -1)
-		{
-			m_colors.push_back(currentColor);
-			foundIndex = m_colors.size() - 1;
-		}
-
-		Cell* newCell = new Cell(currentColor, foundIndex);
-		m_cells.push_back(newCell);
-
-		ColorLookup colorLookup = ColorToInt(currentColor);
-		if(m_ColorProgress.count(colorLookup) == 0)
-		{
-			m_ColorProgress.insert({ colorLookup, 1 });
-		}
-		else
-		{
-            m_ColorProgress[colorLookup]++;
-		}
-	}
-
-	AABB2 bounds = GetAABB2FromAABB2({.65, .1}, {.95, .9}, g_theGame->m_UIBounds);
-	m_colorPicker = new ColorPickerWidget(&gameCamera, bounds, this);
-	m_widgets.push_back(m_colorPicker);
+{   
+    m_carolinePointing = LoadTexture("Assets/caroline_point_clear.png");
 }
 
 //-----------------------------------------------------------------------------------------------
 Playing::~Playing()
 {
-	for(Cell* currentCell : m_cells)
-	{
-		delete currentCell;
-	}
+
 }
 
 //-----------------------------------------------------------------------------------------------
 void Playing::OnEnter()
 {
+    // Game Camera
+    Camera2D& gameCamera = g_theGame->m_gameCamera;
+    gameCamera.target = { 0.f, 0.f };
+    gameCamera.rotation = 0.0f;
+    gameCamera.zoom = 2.0f;
 
+    // Create the level image
+    //m_testImage = LoadImage("Assets/tree_8x8.png");
+    //m_testImage = LoadImage("Assets/cat_cute.png");
+    //m_testImage = LoadImage("Assets/unique_5_5.png");
+    m_testImage = LoadImage("Assets/100_100.png");
+    m_testTexture = LoadTextureFromImage(m_testImage);
+
+    int imageSize = m_testImage.height * m_testImage.width;
+
+    m_colors.reserve(imageSize);
+    m_cells.reserve(imageSize);
+
+    unsigned char* imageData = (unsigned char*)m_testImage.data;
+    for (int i = 0; i < (imageSize * 4); i += 4)
+    {
+        unsigned char currentR = imageData[i];
+        unsigned char currentG = imageData[i + 1];
+        unsigned char currentB = imageData[i + 2];
+        unsigned char currentA = imageData[i + 3];
+
+        Color currentColor = { currentR, currentG, currentB, currentA };
+
+        int foundIndex = -1;
+        for (int j = 0; j < m_colors.size(); j++)
+        {
+            if (ColorIsEqual(currentColor, m_colors[j]))
+            {
+                foundIndex = j;
+                continue;
+            }
+        }
+
+        if (foundIndex == -1)
+        {
+            m_colors.push_back(currentColor);
+            foundIndex = m_colors.size() - 1;
+        }
+
+        Cell* newCell = new Cell(currentColor, foundIndex);
+        m_cells.push_back(newCell);
+
+        ColorLookup colorLookup = ColorToInt(currentColor);
+        if (m_ColorProgress.count(colorLookup) == 0)
+        {
+            m_ColorProgress.insert({ colorLookup, 1 });
+        }
+        else
+        {
+            m_ColorProgress[colorLookup]++;
+        }
+    }
+
+    AABB2 bounds = GetAABB2FromAABB2({ .65, .1 }, { .95, .9 }, g_theGame->m_UIBounds);
+    m_colorPicker = new ColorPickerWidget(&gameCamera, bounds, this);
+    m_widgets.push_back(m_colorPicker);
+
+
+    bounds = GetAABB2FromAABB2({ .4, .85 }, { .6, .95 }, g_theGame->m_UIBounds);
+    m_backToMenuButton = new TextButton(bounds, "Continue!");
+
+    // reset 
+    m_selected_color = 0;
+    m_position = { 0,0 };
+    m_isFinished = false;
 }
 
 //-----------------------------------------------------------------------------------------------
 void Playing::OnExit()
 {
+    for (Cell* currentCell : m_cells)
+    {
+        delete currentCell;
+    }
 
+    for(Widget* currentWidget : m_widgets)
+    {
+        delete currentWidget;
+    }
+
+    m_colors.clear();
+    m_cells.clear();
+    m_widgets.clear();
+
+    UnloadTexture(m_testTexture);
+    UnloadImage(m_testImage);
 }
 
 //-----------------------------------------------------------------------------------------------
 void Playing::Update(float ds)
 {
-	if(m_isFinished)
+    Vector2 mousePos = GetMousePosition();
+    
+    if(m_isFinished)
 	{
 		// add button to go back to menu and stuff
+        if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && m_backToMenuButton->IsSelected(mousePos))
+        {
+            OnExit();
+            g_theGame->m_currentMode = ATTRACT;
+            g_theGame->m_gameScenes[ATTRACT]->OnEnter();
+        }
+
 		return;
 	}
 	
 	Camera2D& gameCamera = g_theGame->m_gameCamera;
-	Vector2 mousePos = GetMousePosition();
-
 	Vector2 mouseWorld = GetScreenToWorld2D(mousePos, gameCamera);
 
     m_mouseTilePosX = (int)(mouseWorld.x / (CELL_SIZE_FLOAT));
@@ -227,6 +254,11 @@ void Playing::CheatInputs()
 				currentCell->m_picked = true;
 			}
 		}
+
+        if (IsKeyPressed(KEY_TWO))
+        {
+            m_isFinished = true;
+        }
 	}
 }
 
@@ -271,7 +303,7 @@ void Playing::Render() const
     snprintf(buff, sizeof(buff), "x: %f, y: %f", mousePos.x, mousePos.y);
     //DrawText(buff, 500, 10, 30, RED);
 
-	DrawFPS(100, 10);
+	DrawFPS(1000, 10);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -379,6 +411,8 @@ void Playing::DrawFinished() const
 	Vector2 textPos = UIBounds.GetPositionWithinBox({.5, .1});
 	int textSize = MeasureText("Good Job! <3", 64);
 	DrawText("Good Job! <3", textPos.x - (textSize * .5), textPos.y, 64, PINK);
+
+    m_backToMenuButton->Render();
 
 	EndMode2D();
 }
