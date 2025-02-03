@@ -5,8 +5,8 @@
 
 
 #include "raylib.h"
-#include <string>
 #include <map>
+#include <cstdlib>
 
 ///------------------------------------------------------------------
 Game* g_theGame = nullptr;
@@ -16,6 +16,13 @@ Game* g_theGame = nullptr;
 Game::Game()
 {
 	g_theGame = this;
+
+    char* appdata = getenv("APPDATA");
+	m_saveDirectory = std::string(appdata) + "\\CarolinePixels";
+	if(DirectoryExists(m_saveDirectory.c_str()) == false)
+	{
+		MakeDirectory(m_saveDirectory.c_str());
+	}
 	
 	// Game Camera
 	m_gameCamera.target = { 0.f, 0.f };
@@ -33,6 +40,7 @@ Game::Game()
 
 	m_gameScenes[ATTRACT] = new Attract();
 	m_gameScenes[PLAYING] = new Playing();
+
 }
 
 ///------------------------------------------------------------------

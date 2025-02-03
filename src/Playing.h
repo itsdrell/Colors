@@ -4,6 +4,8 @@
 #include <vector>
 #include "raylib.h"
 #include <map>
+#include <thread>
+#include <string>
 
 ///------------------------------------------------------------------
 class Widget;
@@ -11,6 +13,8 @@ class ColorPickerWidget;
 class TextButton;
 
 typedef int ColorLookup;
+
+constexpr float AUTO_SAVE_TIME = 5.f;
 
 ///------------------------------------------------------------------
 class Cell
@@ -44,6 +48,9 @@ public:
 	void CheatInputs();
 	bool IsValidIndex(int index);
 
+	void SaveThread();
+	void SaveProgressToFile(const std::string& filePath);
+
 	virtual void Render() const;
 
 private:
@@ -75,4 +82,8 @@ public:
 	std::vector<Widget*> m_widgets;
 	ColorPickerWidget* m_colorPicker = nullptr;
 	TextButton* m_backToMenuButton = nullptr;
+
+	std::thread m_saveThread;
+	float m_saveCoolown = AUTO_SAVE_TIME;
+	bool m_threadFinished = false;
 };

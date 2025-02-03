@@ -78,7 +78,7 @@ void ColorPickerWidget::Update(float ds)
     Vector2 mousePos = GetMousePosition();
     
     // Input
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+    if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
     {
         if (m_isOpen == false)
         {

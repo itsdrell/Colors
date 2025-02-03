@@ -6,7 +6,6 @@
 #include "UI/ColorPickerWidget.h"
 
 #include <map>
-#include <string>
 #include "GameUtils.h"
 #include "raymath.h"
 #include <utility>
@@ -41,13 +40,41 @@ void Playing::OnEnter()
     //m_testImage = LoadImage("Assets/tree_8x8.png");
     //m_testImage = LoadImage("Assets/cat_cute.png");
     //m_testImage = LoadImage("Assets/unique_5_5.png");
-    m_testImage = LoadImage("Assets/100_100.png");
+    //m_testImage = LoadImage("Assets/100_100.png");
+    m_testImage = LoadImage("Assets/valentine_card_s.png");
     m_testTexture = LoadTextureFromImage(m_testImage);
+
+    // set this somewhere else?
+    g_theGame->m_pictureFilename = "valentine_card_s";
 
     int imageSize = m_testImage.height * m_testImage.width;
 
     m_colors.reserve(imageSize);
     m_cells.reserve(imageSize);
+
+    std::vector<bool> loadData;
+    bool hasSaveFile = false;
+    std::string saveFileLocation = g_theGame->m_saveDirectory + "\\" + g_theGame->m_pictureFilename + ".savedata";
+    if (FileExists(saveFileLocation.c_str()))
+    {
+        hasSaveFile = true;
+
+        char* saveData = LoadFileText(saveFileLocation.c_str());
+        if(saveData == nullptr)
+        {
+            hasSaveFile = false;
+        }
+        else
+        {
+            for (int i = 0; i < imageSize; i++)
+            {
+                int startIndex = i + 5;
+                char currentChar = saveData[startIndex];
+                bool result = currentChar == 48 ? false : true;
+                loadData.push_back(result);
+            }
+        }
+    }
 
     unsigned char* imageData = (unsigned char*)m_testImage.data;
     for (int i = 0; i < (imageSize * 4); i += 4)
@@ -78,6 +105,14 @@ void Playing::OnEnter()
         Cell* newCell = new Cell(currentColor, foundIndex);
         m_cells.push_back(newCell);
 
+        if(hasSaveFile)
+        {
+            if(loadData[m_cells.size() - 1])
+            {
+                newCell->m_picked = true;
+            }
+        }
+
         ColorLookup colorLookup = ColorToInt(currentColor);
         if (m_ColorProgress.count(colorLookup) == 0)
         {
@@ -101,6 +136,8 @@ void Playing::OnEnter()
     m_selected_color = 0;
     m_position = { 0,0 };
     m_isFinished = false;
+
+    m_saveThread = std::thread(&Playing::SaveThread, this);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -122,6 +159,8 @@ void Playing::OnExit()
 
     UnloadTexture(m_testTexture);
     UnloadImage(m_testImage);
+
+    m_saveThread.join();
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -217,8 +256,14 @@ void Playing::UpdateMovement(float ds)
         dir = Vector2Add(dir, { -1, 0 });
     }
 
+    float speed = 100;
+    if(IsKeyDown(KEY_LEFT_SHIFT))
+    {
+        speed *= 4;
+    }
+
 	dir = Vector2Normalize(dir);
-	Vector2 movement = Vector2Scale(dir, 100 * ds);
+	Vector2 movement = Vector2Scale(dir, speed * ds);
 
 	m_position = Vector2Add(movement, m_position);
 
@@ -266,6 +311,59 @@ void Playing::CheatInputs()
 bool Playing::IsValidIndex(int index)
 {
 	return (m_hoveredIndex >= 0) && m_hoveredIndex < m_cells.size();
+}
+
+void Playing::SaveThread()
+{
+    std::string saveFileLocation = g_theGame->m_saveDirectory + "\\" + g_theGame->m_pictureFilename + ".savedata";
+    
+    while (m_threadFinished == false)
+    {
+        if (m_isFinished)
+        {
+            SaveProgressToFile(saveFileLocation);
+            m_threadFinished = true;
+        }
+
+        if (m_saveCoolown <= 0.0f)
+        {
+            SaveProgressToFile(saveFileLocation);
+            m_saveCoolown = AUTO_SAVE_TIME;
+        }
+        else
+        {
+            m_saveCoolown -= (1.0f / 60.0f);
+        }
+    }
+}
+
+void Playing::SaveProgressToFile(const std::string& filePath)
+{
+    std::string output;
+
+    int versionNumber = 01;
+    int isFinished = (int)m_isFinished;
+    int percentDone = 00;
+
+    output.append("01");
+    output.append(std::to_string(isFinished));
+    output.append("00");
+
+    for(int i = 0; i < m_cells.size(); i++)
+    {
+        int index = i + 5;
+
+        if(m_cells[i]->m_picked)
+        {
+            output.append("1");
+        }
+        else
+        {
+            output.append("0");
+        }
+    }
+
+    SaveFileText(filePath.c_str(), output.data());
 }
 
 //-----------------------------------------------------------------------------------------------

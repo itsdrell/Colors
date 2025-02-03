@@ -15,8 +15,15 @@ void GridColorButton::Render() const
 
     std::string numberIndex = std::to_string(m_index);
     Vector2 indexTextPos = m_bounds.GetPositionWithinBox({ .4,.4 });
-    DrawText(numberIndex.c_str(), indexTextPos.x, indexTextPos.y, 16, WHITE);
+    
+    // outline hack
+    DrawText(numberIndex.c_str(), indexTextPos.x + 1, indexTextPos.y, 16, BLACK);
+    DrawText(numberIndex.c_str(), indexTextPos.x - 1, indexTextPos.y, 16, BLACK);
+    DrawText(numberIndex.c_str(), indexTextPos.x, indexTextPos.y + 1, 16, BLACK);
+    DrawText(numberIndex.c_str(), indexTextPos.x, indexTextPos.y - 1, 16, BLACK);
 
+    DrawText(numberIndex.c_str(), indexTextPos.x, indexTextPos.y, 16, WHITE);
+    
     AABB2 numberBox = GetAABB2FromAABB2({0, .8}, {1, 1}, m_bounds);
     DrawAABB2Filled(numberBox, WHITE);
     

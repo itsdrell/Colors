@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include "AABB2.h"
+#include <string>
 
 ///------------------------------------------------------------------
 class Scene;
@@ -32,6 +33,9 @@ public:
 
 	GameMode m_currentMode = ATTRACT;
 	Scene* m_gameScenes[GameMode::NUM_MODES];
+
+	std::string m_saveDirectory;
+	std::string m_pictureFilename;
 };
 
 extern Game* g_theGame;
